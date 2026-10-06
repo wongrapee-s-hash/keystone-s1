@@ -1,0 +1,24 @@
+{
+  "name": "movie-ticket-booking",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ระบบจองตั๋วหนัง (Movie Ticket Booking API) — KeystoneJS + PostgreSQL + Docker",
+  "scripts": {
+    "dev": "keystone dev",
+    "build": "keystone build",
+    "start": "keystone start",
+    "db:push": "keystone prisma db push",
+    "typecheck": "tsc --noEmit",
+    "smoke-test": "node scripts/smoke-test.mjs"
+  },
+  "dependencies": {
+    "@keystone-6/auth": "^9.0.0",
+    "@keystone-6/core": "^7.0.0",
+    "dotenv": "^16.6.1",
+    "nodemailer": "^10.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.9.3"
+  }
+}
