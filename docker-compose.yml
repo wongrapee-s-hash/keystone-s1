@@ -1,0 +1,72 @@
+# =====================================================================
+# ระบบจองตั๋วหนัง (Movie Ticket Booking) — Docker Compose
+# รันทั้งระบบ:   docker compose up -d
+# ปิดทั้งระบบ:   docker compose down
+# รีเซ็ตข้อมูล:  docker compose down -v   (ลบ volume ฐานข้อมูลด้วย)
+# =====================================================================
+name: movie-ticket-booking
+
+services:
+  # ---------------- KeystoneJS (Admin UI + GraphQL API) ----------------
+  keystone-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: movieticket_keystone
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    environment:
+      NODE_ENV: production
+      PORT: "${PORT:-3000}"
+      # ภายใน Docker network ต้องใช้ชื่อ host เป็น "postgres-db" (ชื่อ service)
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-movie_user}:${POSTGRES_PASSWORD:-movie_pass}@postgres-db:5432/${POSTGRES_DB:-movie_booking}"
+      SESSION_SECRET: "${SESSION_SECRET:-movie-ticket-booking-secret-key-change-me-1a2b3c4d}"
+      APP_URL: "${APP_URL:-http://localhost:3000}"
+      # ภายใน Docker network ต้องใช้ชื่อ host เป็น "mailpit" (ชื่อ service)
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_FROM: "${SMTP_FROM:-MovieTicket-NoReply@movieticket.local}"
+      MAILPIT_UI_PORT: "8025"
+      SEED_ADMIN_EMAIL: "${SEED_ADMIN_EMAIL:-admin@movieticket.local}"
+      SEED_ADMIN_PASSWORD: "${SEED_ADMIN_PASSWORD:-Admin@1234}"
+      SEED_USER_EMAIL: "${SEED_USER_EMAIL:-user@movieticket.local}"
+      SEED_USER_PASSWORD: "${SEED_USER_PASSWORD:-User@1234}"
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    restart: unless-stopped
+
+  # ---------------- PostgreSQL 14 ----------------
+  postgres-db:
+    image: postgres:14-alpine
+    container_name: movieticket_postgres
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-movie_user}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-movie_pass}"
+      POSTGRES_DB: "${POSTGRES_DB:-movie_booking}"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-movie_user} -d ${POSTGRES_DB:-movie_booking}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  # ---------------- Mailpit (SMTP จำลอง + Web UI ดูอีเมล) ----------------
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: movieticket_mailpit
+    ports:
+      # 8025 = Web UI ดูอีเมล (http://localhost:8025)
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+      # 1025 = พอร์ต SMTP ที่แอปส่งเมลเข้ามา
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
