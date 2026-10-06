@@ -1,0 +1,15 @@
+ให้ git จัดการ line ending อัตโนมัติ
+text=auto
+
+สำคัญ: สคริปต์ต้องเป็น LF เสมอ ไม่งั้น container Linux รันไม่ได้ (ปัญหา CRLF จาก Windows)
+*.sh text eol=lf
+docker-entrypoint.sh text eol=lf
+
+source / config
+*.ts text
+*.js text
+*.mjs text
+*.json text
+*.yml text
+*.yaml text
+*.md text
