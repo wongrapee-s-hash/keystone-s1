@@ -1,0 +1,23 @@
+dependencies
+node_modules/
+
+keystone / next build artifacts
+.helios/
+.next/
+
+generated prisma client & schema
+generated/
+
+logs
+.log
+npm-debug.log
+
+OS files
+.DS_Store
+Thumbs.db
+
+local env overrides
+.env.local
+
+หมายเหตุ: ไฟล์ .env ถูก commit ไว้ตั้งใจ (ค่าเดโมสำหรับการเรียน ไม่ใช่ความลับจริง)
+และ docker-compose.yml ต้องใช้ค่าจาก .env ในการ build
