@@ -1,0 +1,16 @@
+ไม่ต้อง copy เข้า image — build ใหม่ใน container เอง
+node_modules
+.helios
+.next
+generated
+
+repo / editor
+.git
+.gitignore
+.gitattributes
+*.log
+.DS_Store
+.env.local
+
+หมายเหตุ: ไฟล์ .env "ไม่" ถูกยกเว้น เพื่อให้ image รัน standalone ได้
+แต่ค่าจริงที่ใช้ใน container จะถูกกำหนดโดย docker-compose environment
